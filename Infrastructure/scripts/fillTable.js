@@ -2,14 +2,13 @@
 'use strict';
 
 var AWS = require("aws-sdk");
+var randomWords = require("random-words");
 
 AWS.config.update({
   region: "eu-west-1",
 });
 
 function FillTable(docClient, tableName, itemsCount) {
-  var randomWords = require("random-words");
-
   const words = randomWords(itemsCount);
   for (let index = 0; index < words.length; index++) {
       console.log(index)
@@ -32,7 +31,6 @@ function main() {
     var cliArgs = process.argv.slice(2);
     var docClient = new AWS.DynamoDB.DocumentClient()
     const tableName = cliArgs[0]
-    //CreateTable(dynamoClient, tableName)
     FillTable(docClient, tableName, 500)
 }
 
