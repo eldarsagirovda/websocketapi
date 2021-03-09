@@ -40,7 +40,7 @@ functions:
     handler: src/handlers/actionResponse.handler
     environment:
       TABLE_NAME: ${self:custom.table_name}
-      WS_ENDPOINT_URL: {"Fn::Join": ["",[{ "Ref": "WebsocketsApi" },".execute-api.",{ "Ref": "AWS::Region" },".",{ "Ref": "AWS::URLSuffix" },"/dev"]]}
+      WS_ENDPOINT_URL: {"Fn::Join": ["",[{ "Ref": "WebsocketsApi" },".execute-api.",{ "Ref": "AWS::Region" },".",{ "Ref": "AWS::URLSuffix" },"/${self:provider.stage}"]]}
     events:
       - websocket:
           route: GetRandomWord
