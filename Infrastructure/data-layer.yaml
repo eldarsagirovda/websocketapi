@@ -1,0 +1,28 @@
+AWSTemplateFormatVersion: 2010-09-09
+Parameters:
+  Environment:
+    Type: String
+    Default: dev
+Resources:
+  WordsTable:
+    Type: 'AWS::DynamoDB::Table'
+    Properties: 
+      BillingMode: 'PROVISIONED'
+      AttributeDefinitions: 
+        - 
+          AttributeName: "id"
+          AttributeType: "N"
+      KeySchema:
+        -
+          AttributeName: id
+          KeyType: HASH
+      ProvisionedThroughput: 
+        ReadCapacityUnits: "5"
+        WriteCapacityUnits: "5"
+      TableName: !Sub 'ws-words-${Environment}'
+  WordsTableNameSsmParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+        Name: !Sub "/${Environment}/words_table_name"
+        Type: String
+        Value: !Ref WordsTable

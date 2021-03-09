@@ -1,0 +1,46 @@
+service: websocket-random-word
+
+provider:
+  name: aws
+  stage: dev
+  runtime: nodejs12.x
+  region: eu-west-1
+  websocketsApiRouteSelectionExpression: $request.body.action
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:DescribeTable
+          Resource:
+            - "arn:aws:dynamodb:${self:provider.region}:#{AWS::AccountId}:table/${self:custom.table_name}"
+            - "arn:aws:dynamodb:${self:provider.region}:#{AWS::AccountId}:table/${self:custom.table_name}/*"
+
+custom:
+  table_name: ${ssm:/${self:provider.stage}/words_table_name}
+plugins:
+  - serverless-pseudo-parameters
+
+functions:
+  # connectionHandler:
+  #   handler: src/handler.handler
+  #   events:
+  #     - websocket:
+  #         routeKey: $connect
+  #     - websocket:
+  #         routeKey: $disconnect
+  # defaultHandler:
+  #   events:
+  #     - websocket:
+  #         routeKey: $default
+  actionHandler:
+    handler: src/handlers/actionResponse.handler
+    environment:
+      TABLE_NAME: ${self:custom.table_name}
+      WS_ENDPOINT_URL: {"Fn::Join": ["",[{ "Ref": "WebsocketsApi" },".execute-api.",{ "Ref": "AWS::Region" },".",{ "Ref": "AWS::URLSuffix" },"/dev"]]}
+    events:
+      - websocket:
+          route: GetRandomWord
